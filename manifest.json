@@ -1,0 +1,21 @@
+{
+  "name": "Trabajar Chrome Extension",
+  "version": "1.0.0",
+  "description": "A React-based Chrome extension for Trabajar",
+  "manifest_version": 3,
+  "author": "Arunn",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Trabajar Extension"
+  },
+  "permissions": [
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
