@@ -3,11 +3,12 @@ import React from 'react'
 interface CopyButtonProps {
   id: string
   label: string
+  title: string
   text: string
   icon: string
 }
 
-export const CopyButton: React.FC<CopyButtonProps> = ({ id, label, text, icon }) => {
+export const CopyButton: React.FC<CopyButtonProps> = ({ id, label, title, text, icon }) => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text)
@@ -25,7 +26,8 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ id, label, text, icon })
       id={id}
       className="copy-button"
       onClick={handleCopy}
-      title={`Copy ${label} text`}
+      title={title}
+      aria-label={title}
     >
       <span className="button-icon">{icon}</span>
       <span className="button-label">{label}</span>
