@@ -1,2 +1,2 @@
 # trabajar
-An app to track job applications
+A chrome extension app to track job applications
