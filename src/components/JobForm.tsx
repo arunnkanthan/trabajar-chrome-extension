@@ -82,11 +82,14 @@ export const JobForm: React.FC = () => {
         {saving ? 'Saving...' : 'Submit'}
       </button>
 
-      {(status.type === 'ok' || status.type === 'error') && (
-        <p className={`form-status ${status.type === 'error' ? 'status-error' : 'status-ok'}`} role="status">
-          {status.message}
-        </p>
-      )}
+      <p
+        className={`form-status ${
+          status.type === 'error' ? 'status-error' : status.type === 'ok' ? 'status-ok' : 'status-hidden'
+        }`}
+        role="status"
+      >
+        {status.type === 'ok' || status.type === 'error' ? status.message : '\u00A0'}
+      </p>
     </form>
   )
 }

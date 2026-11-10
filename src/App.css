@@ -148,6 +148,7 @@
 
 .form-status {
   font-size: 13px;
+  line-height: 16px;
   font-weight: 500;
   padding: 8px 10px;
   border-radius: 6px;
@@ -155,6 +156,10 @@
 
 .status-ok {
   background: rgba(26, 127, 55, 0.35);
+}
+
+.status-hidden {
+  visibility: hidden; /* keeps its space so the popup doesn't grow when a message appears */
 }
 
 .status-error {
