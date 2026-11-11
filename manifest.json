@@ -9,7 +9,8 @@
     "default_title": "Trabajar Extension"
   },
   "permissions": [
-    "clipboardWrite"
+    "clipboardWrite",
+    "storage"
   ],
   "host_permissions": [
     "https://script.google.com/*",

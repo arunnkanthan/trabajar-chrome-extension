@@ -1,26 +1,59 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { sendJobToSheet, type WorkLocation } from '../services/sheets'
 import { getCurrentDateMMDDYYYY } from '../utils/date'
+import { clearDraft, loadDraft, saveDraft } from '../services/draft'
 
 const WORK_LOCATIONS: Exclude<WorkLocation, ''>[] = ['REMOTE', 'HYBRID', 'ONSITE']
 
-const emptyForm = {
+type FormState = {
+  companyName: string
+  positionTitle: string
+  positionLink: string
+  jobBoard: string
+  workLocation: WorkLocation
+  notes: string
+}
+
+const emptyForm: FormState = {
   companyName: '',
   positionTitle: '',
   positionLink: '',
   jobBoard: '',
-  workLocation: '' as WorkLocation,
+  workLocation: '',
   notes: '',
 }
+
+const isEmpty = (form: FormState) => Object.values(form).every((value) => value === '')
 
 type Status = { type: 'idle' } | { type: 'saving' } | { type: 'ok'; message: string } | { type: 'error'; message: string }
 
 export const JobForm: React.FC = () => {
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState<FormState>(emptyForm)
   const [status, setStatus] = useState<Status>({ type: 'idle' })
+  const [draftLoaded, setDraftLoaded] = useState(false)
 
-  const update = (field: keyof typeof emptyForm) =>
+  // Restore the draft when the popup opens
+  useEffect(() => {
+    loadDraft<FormState>()
+      .then((draft) => { if (draft) setForm({ ...emptyForm, ...draft }) })
+      .catch((err) => console.error('Failed to load draft', err))
+      .finally(() => setDraftLoaded(true))
+  }, [])
+
+  // Save the draft on every change (only after it's been restored, so we don't overwrite it with an empty form)
+  useEffect(() => {
+    if (!draftLoaded) return
+    const persist = isEmpty(form) ? clearDraft() : saveDraft(form)
+    persist.catch((err) => console.error('Failed to save draft', err))
+  }, [form, draftLoaded])
+
+  const update = (field: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [field]: e.target.value })
+
+  const handleClear = () => {
+    setForm(emptyForm)
+    setStatus({ type: 'idle' })
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -78,9 +111,14 @@ export const JobForm: React.FC = () => {
 
       <input className="form-input" type="text" placeholder="Any notes?" value={form.notes} onChange={update('notes')} />
 
-      <button className="submit-button" type="submit" disabled={saving}>
-        {saving ? 'Saving...' : 'Submit'}
-      </button>
+      <div className="form-actions">
+        <button className="submit-button" type="submit" disabled={saving}>
+          {saving ? 'Saving...' : 'Submit'}
+        </button>
+        <button className="clear-button" type="button" onClick={handleClear} disabled={saving || isEmpty(form)}>
+          Clear
+        </button>
+      </div>
 
       <p
         className={`form-status ${
