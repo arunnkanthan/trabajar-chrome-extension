@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { sendJobToSheet, type WorkLocation } from '../services/sheets'
 import { getCurrentDateMMDDYYYY } from '../utils/date'
 import { clearDraft, loadDraft, saveDraft } from '../services/draft'
+import { getActiveTabUrl } from '../services/tabs'
 
 const WORK_LOCATIONS: Exclude<WorkLocation, ''>[] = ['REMOTE', 'HYBRID', 'ONSITE']
 
@@ -32,7 +33,7 @@ export const JobForm: React.FC = () => {
   const [status, setStatus] = useState<Status>({ type: 'idle' })
   const [draftLoaded, setDraftLoaded] = useState(false)
 
-  // Restore the draft when the popup opens
+  // Restore this tab's draft when the popup opens
   useEffect(() => {
     loadDraft<FormState>()
       .then((draft) => { if (draft) setForm({ ...emptyForm, ...draft }) })
@@ -49,6 +50,21 @@ export const JobForm: React.FC = () => {
 
   const update = (field: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [field]: e.target.value })
+
+  // Fill Url with the address of the page the popup was opened on (the job posting)
+  const handleUsePageUrl = async () => {
+    try {
+      const pageUrl = await getActiveTabUrl()
+      if (!pageUrl) {
+        setStatus({ type: 'error', message: "This page doesn't have a web address to use." })
+        return
+      }
+      setForm((current) => ({ ...current, positionLink: pageUrl }))
+    } catch (err) {
+      console.error('Failed to read tab URL', err)
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : "Couldn't read this page's address." })
+    }
+  }
 
   const handleClear = () => {
     setForm(emptyForm)
@@ -91,7 +107,18 @@ export const JobForm: React.FC = () => {
       <h3 className="form-title">Track a job</h3>
       <input className="form-input" type="text" placeholder="Company Name" value={form.companyName} onChange={update('companyName')} />
       <input className="form-input" type="text" placeholder="Position" value={form.positionTitle} onChange={update('positionTitle')} />
-      <input className="form-input" type="url" placeholder="Url" value={form.positionLink} onChange={update('positionLink')} />
+      <div className="input-row">
+        <input className="form-input" type="url" placeholder="Url" value={form.positionLink} onChange={update('positionLink')} />
+        <button
+          className="page-url-button"
+          type="button"
+          onClick={handleUsePageUrl}
+          title="Use this page's address"
+          aria-label="Use this page's address"
+        >
+          🔗
+        </button>
+      </div>
       <input className="form-input" type="text" placeholder="Job Board" value={form.jobBoard} onChange={update('jobBoard')} />
 
       <div className="radio-group" role="radiogroup" aria-label="Work location">

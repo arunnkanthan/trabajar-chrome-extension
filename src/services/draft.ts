@@ -1,3 +1,5 @@
+import { getActiveTab } from './tabs'
+
 /**
  * Saves the job form as a draft in chrome.storage.session, one draft per browser tab.
  *
@@ -10,13 +12,10 @@
  */
 const DRAFT_KEY_PREFIX = 'jobFormDraft:'
 
-// chrome.* only exists when running as the extension (not in a plain browser tab)
-const isExtension = () => typeof chrome !== 'undefined' && !!chrome.storage?.session && !!chrome.tabs
-
-/** Storage key for the tab the popup was opened on (the active tab in the current window). */
+/** Storage key for the tab the popup was opened on. */
 const draftKey = async (): Promise<string | null> => {
-  if (!isExtension()) return null
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+  if (typeof chrome === 'undefined' || !chrome.storage?.session) return null
+  const tab = await getActiveTab()
   return tab?.id == null ? null : `${DRAFT_KEY_PREFIX}${tab.id}`
 }
 

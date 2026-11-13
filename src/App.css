@@ -110,6 +110,32 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.input-row .form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-url-button {
+  flex-shrink: 0;
+  width: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-url-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 .radio-group {
   display: flex;
   justify-content: space-between;
